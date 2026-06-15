@@ -6,8 +6,9 @@ import ShopHeader from '../../components/layouts/ShopHeader';
 import ShopFooter from '../../components/layouts/ShopFooter';
 import ProductCard from '../../components/products/ProductCard';
 import Loading from '../../components/common/Loading';
-import { getFavourites, removeFromFavourites } from '../../services/favouriteService';
-import { addToCart, getCart } from '../../services/cartService';
+import { getFavourites } from '../../services/favouriteService';
+import { useCart } from '../../contexts/CartContext';
+import { useWishlist } from '../../contexts/WishlistContext';
 import { useToast } from '../../contexts/ToastContext';
 
 function FavouritePage() {
@@ -15,9 +16,10 @@ function FavouritePage() {
   const { showToast } = useToast();
   const { isAuthenticated, isInitializing } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
+  const { addToCart: contextAddToCart } = useCart();
+  const { toggleWishlistItem } = useWishlist();
   
   const [favourites, setFavourites] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -49,16 +51,10 @@ function FavouritePage() {
     setIsLoading(true);
     setError('');
     try {
-      const [favsResponse, cartResponse] = await Promise.all([
-        getFavourites(),
-        getCart(),
-      ]);
+      const favsResponse = await getFavourites();
 
       if (favsResponse.data.success) {
         setFavourites(favsResponse.data.data || []);
-      }
-      if (cartResponse.data.success) {
-        setCartCount(cartResponse.data.data?.length || 0);
       }
     } catch (err) {
       console.error('Failed to load page data:', err);
@@ -72,8 +68,8 @@ function FavouritePage() {
     try {
       const product = favourites.find((p) => p.id === productId);
       const productName = product ? product.name : 'Product';
-      const response = await removeFromFavourites(productId);
-      if (response.data.success) {
+      const success = await toggleWishlistItem(productId);
+      if (success) {
         setFavourites((prev) => prev.filter((item) => item.id !== productId));
         showToast(`Removed "${productName}" from wishlist`, 'info');
       }
@@ -85,12 +81,7 @@ function FavouritePage() {
 
   const handleAddToCart = async (product) => {
     try {
-      await addToCart(product.id, 1);
-      // Reload cart to get accurate count
-      const cartResponse = await getCart();
-      if (cartResponse.data.success) {
-        setCartCount(cartResponse.data.data?.length || 0);
-      }
+      await contextAddToCart(product.id, 1);
       showToast(`Added "${product.name}" to cart`, 'success');
     } catch (err) {
       console.error('Failed to add item to cart:', err);
@@ -111,7 +102,6 @@ function FavouritePage() {
           font-family: 'DM Sans', sans-serif;
           position: relative;
           width: 100%;
-          overflow-x: hidden;
         }
 
         /* ── ambient orbs ── */
@@ -430,7 +420,7 @@ function FavouritePage() {
       <div className="orb orb-1" />
       <div className="orb orb-2" />
       <div className="orb orb-3" />
-      <ShopHeader cartCount={cartCount} wishlistCount={favourites.length} />
+      <ShopHeader />
 
       <main className="fav-main">
         <div className="fav-header">

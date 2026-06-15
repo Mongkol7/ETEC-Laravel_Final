@@ -11,13 +11,11 @@ function OrderConfirmation() {
   const navigate = useNavigate();
   const orderData = location.state?.orderData;
   const orderItems = location.state?.orderItems || [];
-  const { cartCount } = useCart();
-  const { wishlistCount } = useWishlist();
 
   if (!orderData) {
     return (
       <div className="order-confirmation-root">
-        <ShopHeader cartCount={cartCount} wishlistCount={wishlistCount} />
+        <ShopHeader />
         <main className="order-confirmation-main">
           <div className="order-confirmation-card">
             <h2 className="order-confirmation-title">Order Not Found</h2>
@@ -126,7 +124,7 @@ function OrderConfirmation() {
 
   return (
     <div className="order-confirmation-root">
-      <ShopHeader cartCount={0} />
+      <ShopHeader />
       <main className="order-confirmation-main">
         <div className="order-confirmation-card">
           <div className="order-confirmation-icon">✓</div>

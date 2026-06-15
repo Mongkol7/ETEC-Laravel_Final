@@ -61,6 +61,7 @@ Route::prefix('user')->middleware(['auth:sanctum'])->group(function () {
 
 //Route for Admin:
 Route::prefix('admin')->middleware(['auth:sanctum', 'role'])->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index']);
     //All methods of Resource Controller: index, store, show, update, destroy
     Route::apiResource('users', UserController::class);
     //Category: admin able to CRUD all:

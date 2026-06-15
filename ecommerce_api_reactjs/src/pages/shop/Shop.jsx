@@ -8,7 +8,6 @@ import useAuth from '../../hooks/useAuth';
 import { useAuthPrompt } from '../../hooks/useAuthPrompt';
 import { useToast } from '../../contexts/ToastContext';
 import { getPublicProducts, getPublicCategories } from '../../services/productService';
-import { addToCart } from '../../services/cartService';
 import { toggleFavourite } from '../../services/favouriteService';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
@@ -18,8 +17,8 @@ function ShopPage() {
   const { isAuthenticated } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
   const { showToast } = useToast();
-  const { cartCount, updateCartCount } = useCart();
-  const { wishlist, wishlistCount, toggleWishlistItem } = useWishlist();
+  const { addToCart: contextAddToCart } = useCart();
+  const { wishlist, toggleWishlistItem } = useWishlist();
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -83,7 +82,7 @@ function ShopPage() {
     }
 
     try {
-      await addToCart(product.id, 1);
+      await contextAddToCart(product.id, 1);
       showToast(`${product.name} added to cart!`, 'success');
     } catch (err) {
       console.error('Failed to add to cart:', err);
@@ -631,8 +630,6 @@ function ShopPage() {
 
       <div className="shop-grid-bg" />
       <ShopHeader 
-        cartCount={cartCount}
-        wishlistCount={wishlistCount}
         onCartClick={handleCartClick}
         onWishlistClick={handleWishlistClick}
       />

@@ -16,8 +16,6 @@ function OrderDetailsPage() {
   const { isAuthenticated, isInitializing } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
   const { showToast } = useToast();
-  const { cartCount } = useCart();
-  const { wishlistCount } = useWishlist();
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -179,7 +177,7 @@ function OrderDetailsPage() {
             line-height: 1.15;
           }
         `}</style>
-        <ShopHeader cartCount={cartCount} wishlistCount={wishlistCount} />
+        <ShopHeader />
         <main className="order-details-main" style={{ background: '#050508' }}>
           <div className="order-details-header">
             <Link to="/orders" className="order-details-back">
@@ -287,7 +285,7 @@ function OrderDetailsPage() {
             box-shadow: 0 8px 24px rgba(0, 255, 140, 0.3);
           }
         `}</style>
-        <ShopHeader cartCount={cartCount} wishlistCount={wishlistCount} />
+        <ShopHeader />
         <main className="order-details-main" style={{ background: '#050508' }}>
           <div className="order-details-header">
             <Link to="/orders" className="order-details-back">
@@ -317,11 +315,12 @@ function OrderDetailsPage() {
   const shipping = subtotal >= 50 ? 0 : 5.99;
   const total = subtotal + tax + shipping;
 
-  const canCancel = order.status === 'pending' || order.status === 'processing';
+  const isWithin24Hours = order ? (new Date().getTime() - new Date(order.created_at).getTime()) < (24 * 60 * 60 * 1000) : false;
+  const canCancel = (order.status === 'pending' || order.status === 'processing') && isWithin24Hours;
 
   return (
     <div className="order-details-root">
-      <ShopHeader cartCount={0} />
+      <ShopHeader />
       <main className="order-details-main">
         <div className="order-details-header">
           <Link to="/orders" className="order-details-back">

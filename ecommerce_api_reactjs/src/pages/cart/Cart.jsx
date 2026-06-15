@@ -26,8 +26,7 @@ function CartPage() {
   const [error, setError] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  const { cartCount, loadCart } = useCart();
-  const { wishlistCount } = useWishlist();
+  const { loadCart } = useCart();
 
   useEffect(() => {
     if (!isInitializing && !isAuthenticated) {
@@ -135,7 +134,6 @@ function CartPage() {
           font-family: 'DM Sans', sans-serif;
           position: relative;
           width: 100%;
-          overflow-x: hidden;
         }
 
         .orb {
@@ -513,7 +511,7 @@ function CartPage() {
       <div className="orb orb-1" />
       <div className="orb orb-2" />
       
-      <ShopHeader cartCount={cartCount} wishlistCount={wishlistCount} />
+      <ShopHeader />
 
       <main className="cart-main">
         <div className="cart-header">

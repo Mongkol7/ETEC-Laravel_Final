@@ -1,12 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import ConfirmModal from '../common/ConfirmModal';
 
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const accountName = user?.name || user?.username || user?.email || 'User';
   const initials = accountName
     .split(' ')
@@ -186,12 +188,28 @@ const Navbar = () => {
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+    setShowLogoutModal(false);
   };
 
   return (
     <nav className="navbar-glass">
+      <ConfirmModal 
+        open={showLogoutModal}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        confirmText="Logout"
+      />
       {/* Brand / Logo */}
-      <Link to="/dashboard" className="nav-brand">
+      <a 
+        href="#" 
+        className="nav-brand" 
+        onClick={(e) => {
+          e.preventDefault();
+          window.location.reload();
+        }}
+      >
         <div className="nav-brand-mark">
           {/* Phone icon */}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -200,19 +218,10 @@ const Navbar = () => {
           </svg>
         </div>
         MK7<span>.</span>
-      </Link>
+      </a>
 
-      {/* Navigation Links */}
+      {/* Navigation Links removed as requested */}
       <div className="nav-links">
-        <Link to="/dashboard" className={`nav-link-item ${isActive('/dashboard') ? 'active' : ''}`}>
-          Overview
-        </Link>
-        <Link to="/analytics" className={`nav-link-item ${isActive('/analytics') ? 'active' : ''}`}>
-          Analytics
-        </Link>
-        <Link to="/settings" className={`nav-link-item ${isActive('/settings') ? 'active' : ''}`}>
-          Settings
-        </Link>
       </div>
 
       {/* Right Actions */}
@@ -222,7 +231,7 @@ const Navbar = () => {
           <span>{accountName}</span>
         </div>
 
-        <button className="logout-btn" onClick={handleLogout} title="Logout">
+        <button className="logout-btn" onClick={() => setShowLogoutModal(true)} title="Logout">
           <svg
             width="18"
             height="18"

@@ -221,6 +221,14 @@ class OrderController extends Controller
             ], 400);
         }
 
+        // Enforce 24-hour cancellation policy
+        if ($order->created_at->diffInHours(now()) >= 24) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Orders can only be cancelled within 24 hours of purchase',
+            ], 400);
+        }
+
         try {
             DB::beginTransaction();
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -8,77 +8,14 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-
-// Mock Data for the Chart
-const revenueData = [
-  { name: 'Jan', revenue: 4000, orders: 2400 },
-  { name: 'Feb', revenue: 3000, orders: 1398 },
-  { name: 'Mar', revenue: 9800, orders: 4800 },
-  { name: 'Apr', revenue: 3908, orders: 3908 },
-  { name: 'May', revenue: 14800, orders: 6800 },
-  { name: 'Jun', revenue: 18900, orders: 8300 },
-];
-
-// Mock Data for Analytics
-const topProducts = [
-  {
-    id: 'PRD-01',
-    name: 'Quantum Mechanical Keyboard',
-    sales: 428,
-    revenue: '$64,200',
-    stock: 'In Stock',
-  },
-  {
-    id: 'PRD-02',
-    name: 'Neon Desk Mat (XL)',
-    sales: 382,
-    revenue: '$11,460',
-    stock: 'Low Stock',
-  },
-  {
-    id: 'PRD-03',
-    name: 'Ergo-Mesh Chair',
-    sales: 145,
-    revenue: '$50,750',
-    stock: 'In Stock',
-  },
-  {
-    id: 'PRD-04',
-    name: 'OLED Monitor Light Bar',
-    sales: 98,
-    revenue: '$8,820',
-    stock: 'Out of Stock',
-  },
-];
-
-const recentUsers = [
-  {
-    name: 'Alex Mercer',
-    role: 'Pro Member',
-    time: '2 mins ago',
-    color: '#00ff8c',
-  },
-  {
-    name: 'Sarah Jenkins',
-    role: 'Basic',
-    time: '1 hour ago',
-    color: '#00c9ff',
-  },
-  {
-    name: 'Marcus Chen',
-    role: 'Enterprise',
-    time: '3 hours ago',
-    color: '#a200ff',
-  },
-  {
-    name: 'Elena Rostova',
-    role: 'Pro Member',
-    time: '5 hours ago',
-    color: '#ff9100',
-  },
-];
+import { getDashboardData } from '../../services/dashboardService';
+import Loading from '../../components/common/Loading';
 
 const Dashboard = () => {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const style = document.createElement('style');
     style.id = 'dashboard-custom';
@@ -153,7 +90,8 @@ const Dashboard = () => {
       .user-list { display: flex; flex-direction: column; gap: 16px; }
       .user-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.01); border: 1px solid transparent; transition: all 0.2s; }
       .user-item:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.05); }
-      .user-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #050508; }
+      .user-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #050508; overflow: hidden; }
+      .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
       .user-info { flex: 1; }
       .user-name { color: #fff; font-weight: 600; font-size: 14px; margin-bottom: 2px; }
       .user-role { color: rgba(255,255,255,0.4); font-size: 12px; }
@@ -165,11 +103,51 @@ const Dashboard = () => {
       .tooltip-value { color: #00ff8c; font-weight: 700; font-size: 16px; font-family: 'Syne', sans-serif; }
     `;
     document.head.appendChild(style);
+    
+    fetchData();
+
     return () => {
       const s = document.getElementById('dashboard-custom');
       if (s) s.remove();
     };
   }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await getDashboardData();
+      if (response.data.status) {
+        setData(response.data.data);
+      } else {
+        setError('Failed to load dashboard data');
+      }
+    } catch (err) {
+      console.error('Dashboard error:', err);
+      setError('An error occurred while fetching dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <Loading label="Analyzing statistics..." />
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="glass-card" style={{ textAlign: 'center', padding: '40px' }}>
+        <h3 className="section-title" style={{ color: '#ff4757' }}>Error</h3>
+        <p style={{ color: 'rgba(255,255,255,0.5)' }}>{error || 'Something went wrong'}</p>
+        <button className="action-btn" onClick={fetchData} style={{ marginTop: '20px' }}>Retry</button>
+      </div>
+    );
+  }
+
+  const { stats, revenue_overview, recent_users, top_products } = data;
 
   // Custom tooltip for the Recharts graph
   const CustomTooltip = ({ active, payload, label }) => {
@@ -216,8 +194,8 @@ const Dashboard = () => {
               </svg>
             </div>
           </div>
-          <div className="stat-value">$124,563.00</div>
-          <div className="stat-trend trend-up">
+          <div className="stat-value">${stats.total_revenue.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <div className={`stat-trend ${stats.total_revenue.trend_type === 'up' ? 'trend-up' : 'trend-down'}`}>
             <svg
               width="14"
               height="14"
@@ -225,11 +203,12 @@ const Dashboard = () => {
               stroke="currentColor"
               strokeWidth="2"
               viewBox="0 0 24 24"
+              style={{ transform: stats.total_revenue.trend_type === 'down' ? 'rotate(90deg)' : 'none' }}
             >
               <path d="M23 6l-9.5 9.5-5-5L1 18"></path>
               <path d="M17 6h6v6"></path>
             </svg>
-            12.5% <span className="trend-text">vs last month</span>
+            {stats.total_revenue.trend}% <span className="trend-text">vs last month</span>
           </div>
         </div>
 
@@ -251,8 +230,8 @@ const Dashboard = () => {
               </svg>
             </div>
           </div>
-          <div className="stat-value">842</div>
-          <div className="stat-trend trend-up">
+          <div className="stat-value">{stats.active_orders.value.toLocaleString()}</div>
+          <div className={`stat-trend ${stats.active_orders.trend_type === 'up' ? 'trend-up' : 'trend-down'}`}>
             <svg
               width="14"
               height="14"
@@ -260,11 +239,12 @@ const Dashboard = () => {
               stroke="currentColor"
               strokeWidth="2"
               viewBox="0 0 24 24"
+              style={{ transform: stats.active_orders.trend_type === 'down' ? 'rotate(90deg)' : 'none' }}
             >
               <path d="M23 6l-9.5 9.5-5-5L1 18"></path>
               <path d="M17 6h6v6"></path>
             </svg>
-            8.2% <span className="trend-text">vs last month</span>
+            {stats.active_orders.trend}% <span className="trend-text">vs last month</span>
           </div>
         </div>
 
@@ -287,8 +267,8 @@ const Dashboard = () => {
               </svg>
             </div>
           </div>
-          <div className="stat-value">3,219</div>
-          <div className="stat-trend trend-down">
+          <div className="stat-value">{stats.total_users.value.toLocaleString()}</div>
+          <div className={`stat-trend ${stats.total_users.trend_type === 'up' ? 'trend-up' : 'trend-down'}`}>
             <svg
               width="14"
               height="14"
@@ -296,11 +276,12 @@ const Dashboard = () => {
               stroke="currentColor"
               strokeWidth="2"
               viewBox="0 0 24 24"
+              style={{ transform: stats.total_users.trend_type === 'down' ? 'rotate(90deg)' : 'none' }}
             >
-              <path d="M23 18l-9.5-9.5-5 5L1 6"></path>
-              <path d="M17 18h6v-6"></path>
+              <path d="M23 6l-9.5 9.5-5-5L1 18"></path>
+              <path d="M17 6h6v6"></path>
             </svg>
-            2.4% <span className="trend-text">vs last month</span>
+            {stats.total_users.trend}% <span className="trend-text">vs last month</span>
           </div>
         </div>
       </div>
@@ -313,7 +294,7 @@ const Dashboard = () => {
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <AreaChart
-                data={revenueData}
+                data={revenue_overview}
                 margin={{ top: 10, right: 0, left: -20, bottom: 0 }}
               >
                 <defs>
@@ -362,21 +343,31 @@ const Dashboard = () => {
         <div className="glass-card">
           <h3 className="section-title">Recent Users</h3>
           <div className="user-list">
-            {recentUsers.map((user, idx) => (
-              <div key={idx} className="user-item">
-                <div className="user-avatar" style={{ background: user.color }}>
-                  {user.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')}
+            {recent_users.length > 0 ? (
+              recent_users.map((user, idx) => (
+                <div key={idx} className="user-item">
+                  <div className="user-avatar" style={{ background: !user.image ? user.color : 'transparent' }}>
+                    {user.image ? (
+                      <img src={user.image} alt={user.name} />
+                    ) : (
+                      user.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')
+                    )}
+                  </div>
+                  <div className="user-info">
+                    <div className="user-name">{user.name}</div>
+                    <div className="user-role">{user.role}</div>
+                  </div>
+                  <div className="user-time">{user.time}</div>
                 </div>
-                <div className="user-info">
-                  <div className="user-name">{user.name}</div>
-                  <div className="user-role">{user.role}</div>
-                </div>
-                <div className="user-time">{user.time}</div>
+              ))
+            ) : (
+              <div style={{ color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '20px' }}>
+                No recent users
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
@@ -395,23 +386,31 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {topProducts.map((prod) => (
-              <tr key={prod.id}>
-                <td style={{ color: 'rgba(255,255,255,0.4)' }}>{prod.id}</td>
-                <td style={{ color: '#fff', fontWeight: 500 }}>{prod.name}</td>
-                <td>{prod.sales} units</td>
-                <td style={{ color: '#00ff8c', fontWeight: 600 }}>
-                  {prod.revenue}
-                </td>
-                <td>
-                  <span
-                    className={`status-badge ${prod.stock === 'In Stock' ? 'badge-good' : prod.stock === 'Low Stock' ? 'badge-warn' : 'badge-bad'}`}
-                  >
-                    {prod.stock}
-                  </span>
+            {top_products.length > 0 ? (
+              top_products.map((prod) => (
+                <tr key={prod.id}>
+                  <td style={{ color: 'rgba(255,255,255,0.4)' }}>{prod.id}</td>
+                  <td style={{ color: '#fff', fontWeight: 500 }}>{prod.name}</td>
+                  <td>{prod.sales} units</td>
+                  <td style={{ color: '#00ff8c', fontWeight: 600 }}>
+                    {prod.revenue}
+                  </td>
+                  <td>
+                    <span
+                      className={`status-badge ${prod.stock === 'In Stock' ? 'badge-good' : prod.stock === 'Low Stock' ? 'badge-warn' : 'badge-bad'}`}
+                    >
+                      {prod.stock}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'rgba(255,255,255,0.3)' }}>
+                  No product data available
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

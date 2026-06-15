@@ -7,7 +7,6 @@ import {
   getPublicProduct,
   getPublicProducts,
 } from '../../services/productService';
-import { addToCart } from '../../services/cartService';
 import { toggleFavourite } from '../../services/favouriteService';
 import useAuth from '../../hooks/useAuth';
 import { useAuthPrompt } from '../../hooks/useAuthPrompt';
@@ -30,8 +29,7 @@ function ProductDetailPage() {
   const { showToast } = useToast();
   const { isAuthenticated } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
-  const { cartCount, updateCartCount } = useCart();
-  const { wishlist, wishlistCount, toggleWishlistItem } = useWishlist();
+  const { wishlist, toggleWishlistItem } = useWishlist();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,11 +54,11 @@ function ProductDetailPage() {
     if (!product?.id) return;
 
     try {
-      const response = await toggleFavourite(product.id);
-      if (response.data.success) {
-        toggleWishlistItem(product.id);
-        
-        if (wishlist.has(product.id)) {
+      const isCurrentlyWishlisted = wishlist.has(product.id);
+      const success = await toggleWishlistItem(product.id);
+      
+      if (success) {
+        if (isCurrentlyWishlisted) {
           showToast(`Removed "${product.name}" from wishlist`, 'info');
         } else {
           showToast(`Added "${product.name}" to wishlist`, 'success');
@@ -75,8 +73,7 @@ function ProductDetailPage() {
   const handleAddToCart = async () => {
     if (!requireAuth(() => {})) return;
     try {
-      await addToCart(product.id, quantity);
-      updateCartCount(cartCount + quantity);
+      await contextAddToCart(product.id, quantity);
       showToast(`Added ${quantity} of "${product.name}" to cart`, 'success');
     } catch (err) {
       console.error('Failed to add item to cart:', err);
@@ -322,8 +319,6 @@ function ProductDetailPage() {
     <div className="detail-root">
       <div className="detail-grid-bg" />
       <ShopHeader
-        cartCount={cartCount}
-        wishlistCount={wishlistCount}
         onCartClick={handleCartIconClick}
         onWishlistClick={handleWishlistIconClick}
       />
@@ -432,8 +427,7 @@ function ProductDetailPage() {
                   className="detail-btn-ghost"
                   onClick={handleToggleWishlist}
                 >
-                  {product?.id && wishlist.has(product.id) ? '♥' : '🤍'} Add to
-                  Wishlist
+                  {product?.id && wishlist.has(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 </button>
               </div>
             </div>

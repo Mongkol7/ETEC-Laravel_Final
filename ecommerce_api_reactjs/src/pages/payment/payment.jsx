@@ -17,7 +17,6 @@ function PaymentPage() {
   const { isAuthenticated } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
   const { showToast } = useToast();
-  const { wishlistCount } = useWishlist();
   
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -543,7 +542,7 @@ function PaymentPage() {
       `}</style>
 
       <div className="payment-grid-bg" />
-      <ShopHeader cartCount={cartItems.length} wishlistCount={wishlistCount} />
+      <ShopHeader />
 
       <main className="payment-main">
         <div className="payment-header">

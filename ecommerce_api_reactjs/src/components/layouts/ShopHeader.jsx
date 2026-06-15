@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { useAuthPrompt } from '../../hooks/useAuthPrompt';
+import { useCart } from '../../contexts/CartContext';
+import { useWishlist } from '../../contexts/WishlistContext';
 import {
   getUserInitials,
   getUserAvatar,
@@ -144,9 +146,11 @@ const SearchResultCard = ({ product, onSelect }) => {
 };
 
 /* ─── Main ShopHeader ─── */
-const ShopHeader = ({ cartCount = 0, wishlistCount = 0, onCartClick, onWishlistClick }) => {
+const ShopHeader = ({ onCartClick, onWishlistClick }) => {
   const { user, isAuthenticated, isInitializing, logout } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
@@ -469,8 +473,6 @@ const ShopHeader = ({ cartCount = 0, wishlistCount = 0, onCartClick, onWishlistC
           <Link to="/" className={isActive('/') ? 'active' : ''}>Home</Link>
           <Link to="/shop" className={isActive('/shop') ? 'active' : ''}>Shop</Link>
           <Link to="/orders" className={isActive('/orders') ? 'active' : ''}>Orders</Link>
-          <a href="/deals">Deals</a>
-          <a href="/about">About</a>
         </nav>
 
         {/* ── Live Search ── */}

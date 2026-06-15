@@ -8,7 +8,6 @@ import {
   getPublicCategories,
   getPublicProducts,
 } from '../../services/productService';
-import { addToCart } from '../../services/cartService';
 import { toggleFavourite } from '../../services/favouriteService';
 import useAuth from '../../hooks/useAuth';
 import { useAuthPrompt } from '../../hooks/useAuthPrompt';
@@ -38,7 +37,7 @@ function ShopHome() {
   const { showToast } = useToast();
   const { isAuthenticated } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
-  const { cartCount, updateCartCount } = useCart();
+  const { addToCart: contextAddToCart } = useCart();
   const { wishlist, wishlistCount, toggleWishlistItem } = useWishlist();
   const [activeCategory, setActiveCategory] = useState('All');
   const [glowPos, setGlowPos] = useState({ x: 50, y: 30 });
@@ -69,7 +68,7 @@ function ShopHome() {
   const handleAddToCart = async (product) => {
     if (!requireAuth(() => {})) return;
     try {
-      await addToCart(product.id, 1);
+      await contextAddToCart(product.id, 1);
       showToast(`Added "${product.name}" to cart`, 'success');
     } catch (err) {
       console.error('Failed to add item to cart:', err);
@@ -115,14 +114,11 @@ function ShopHome() {
       html, body {
         margin: 0;
         padding: 0;
-        overflow-x: hidden;
-        overflow-y: auto;
       }
 
       #root {
         margin: 0;
         padding: 0;
-        overflow: visible;
       }
 
       .shop-root {
@@ -131,7 +127,6 @@ function ShopHome() {
         font-family: 'DM Sans', sans-serif;
         position: relative;
         width: 100%;
-        overflow: visible;
       }
 
       /* ── ambient orbs — cool blue/indigo for tech feel ── */
@@ -616,8 +611,6 @@ function ShopHome() {
           .shop-loading-main { max-width: 1200px; margin: 0 auto; padding: 48px 28px; position: relative; z-index: 1; min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; }
         `}</style>
         <ShopHeader
-          cartCount={cartCount}
-          wishlistCount={wishlistCount}
           onCartClick={handleCartIconClick}
           onWishlistClick={handleWishlistIconClick}
         />
@@ -637,8 +630,6 @@ function ShopHome() {
       <div className="orb orb-3" />
 
       <ShopHeader
-        cartCount={cartCount}
-        wishlistCount={wishlistCount}
         onCartClick={handleCartIconClick}
         onWishlistClick={handleWishlistIconClick}
       />

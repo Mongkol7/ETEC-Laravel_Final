@@ -221,37 +221,6 @@ const Sidebar = () => {
         <line x1="12" y1="22.08" x2="12" y2="12"></line>
       </svg>
     ),
-    Analytics: (
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <line x1="18" y1="20" x2="18" y2="10"></line>
-        <line x1="12" y1="20" x2="12" y2="4"></line>
-        <line x1="6" y1="20" x2="6" y2="14"></line>
-      </svg>
-    ),
-    Settings: (
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-      </svg>
-    ),
     Security: (
       <svg
         width="18"
@@ -282,27 +251,18 @@ const Sidebar = () => {
         <Link to="/admin/products" className={`menu-item ${isActive('/admin/products')}`}>
           {Icons.Products} Product Management
         </Link>
-        <Link to="/analytics" className={`menu-item ${isActive('/analytics')}`}>
-          {Icons.Analytics} Analytics
-        </Link>
       </div>
 
       {/* Configuration Section */}
       <div className="sidebar-section">
         <span className="section-label">Configuration</span>
-        <Link to="/settings" className={`menu-item ${isActive('/settings')}`}>
-          {Icons.Settings} Settings
-        </Link>
-        <Link to="/security" className={`menu-item ${isActive('/security')}`}>
+        <a 
+          href="#" 
+          className={`menu-item ${isActive('/security')}`}
+          onClick={(e) => e.preventDefault()}
+        >
           {Icons.Security} Security Logs
-        </Link>
-      </div>
-
-      {/* Upgrade / Promo Card */}
-      <div className="pro-card">
-        <h4>MK7 Pro</h4>
-        <p>Unlock advanced analytics and custom reporting.</p>
-        <button className="pro-btn">Upgrade Now</button>
+        </a>
       </div>
     </aside>
   );

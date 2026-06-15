@@ -15,8 +15,6 @@ function OrdersPage() {
   const { isAuthenticated, isInitializing } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
   const { showToast } = useToast();
-  const { cartCount } = useCart();
-  const { wishlistCount } = useWishlist();
   
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -107,7 +105,7 @@ function OrdersPage() {
 
   return (
     <div className="orders-root">
-      <ShopHeader cartCount={cartCount} wishlistCount={wishlistCount} />
+      <ShopHeader />
       <main className="orders-main">
         <div className="orders-header">
           <h1 className="orders-title">My Orders</h1>

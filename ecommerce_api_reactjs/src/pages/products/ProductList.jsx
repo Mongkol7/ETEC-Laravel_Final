@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { getAllProducts, createProduct, updateProduct, deleteProduct, getAllCategories } from '../../services/productService'
 import Loading from '../../components/common/Loading'
+import ConfirmModal from '../../components/common/ConfirmModal'
 
 const ProductList = () => {
   const [products, setProducts] = useState([])
@@ -8,6 +9,7 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   
   // Modal & Form State
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -214,18 +216,19 @@ const ProductList = () => {
   }
 
   const handleDelete = async (id) => {
-    if (deletingId) return
+    setDeletingId(id)
+    setDeleteModalOpen(true)
+  }
 
-    if (window.confirm('Are you sure you want to delete this product? All attached images will be destroyed.')) {
-      try {
-        setDeletingId(id)
-        await deleteProduct(id)
-        loadData()
-      } catch (error) {
-        console.error('Error deleting product:', error)
-      } finally {
-        setDeletingId(null)
-      }
+  const confirmDelete = async () => {
+    try {
+      await deleteProduct(deletingId)
+      loadData()
+      setDeleteModalOpen(false)
+    } catch (error) {
+      console.error('Error deleting product:', error)
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -324,6 +327,15 @@ const ProductList = () => {
           </table>
         )}
       </div>
+
+      <ConfirmModal 
+        open={deleteModalOpen}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? All attached images will be destroyed."
+        onCancel={() => { setDeleteModalOpen(false); setDeletingId(null); }}
+        onConfirm={confirmDelete}
+        confirmText="Delete"
+      />
 
       {/* Sliding Glass Modal for Products */}
       <div className={`modal-overlay ${isModalOpen ? 'open' : ''}`}>
