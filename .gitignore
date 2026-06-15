@@ -1,0 +1,22 @@
+# Note-taking files
+*.md
+!README.md
+!CHANGELOG.md
+!CONTRIBUTING.md
+!LICENSE.md
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE files
+.idea
+.vscode
+.fleet
+
+# Temporary files
+*.tmp
+*.temp

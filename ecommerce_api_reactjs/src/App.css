@@ -1,0 +1,54 @@
+#root {
+  min-height: 100vh;
+}
+
+#center {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.hero {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-height: 180px;
+}
+
+.hero .base {
+  border-radius: 8px;
+}
+
+.framework,
+.vite {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+}
+
+.framework {
+  left: -32px;
+  top: 24px;
+}
+
+.vite {
+  right: -32px;
+  bottom: 24px;
+}
+
+.counter {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background: #2563eb;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+#next-steps,
+#spacer,
+.ticks {
+  display: none;
+}
