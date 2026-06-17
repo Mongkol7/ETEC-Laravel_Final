@@ -30,6 +30,7 @@ function ProductDetailPage() {
   const { isAuthenticated } = useAuth();
   const { openLoginPrompt } = useAuthPrompt();
   const { wishlist, toggleWishlistItem } = useWishlist();
+  const { addToCart: contextAddToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
