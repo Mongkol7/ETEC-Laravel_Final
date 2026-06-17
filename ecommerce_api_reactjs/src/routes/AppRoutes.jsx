@@ -17,6 +17,7 @@ const Dashboard = lazy(() => import('../pages/dashboard/Dashboard'));
 const NotFound = lazy(() => import('../pages/errors/NotFound'));
 const Unauthorized = lazy(() => import('../pages/errors/Unauthorized'));
 const UserList = lazy(() => import('../pages/users/UserList'));
+const CategoryList = lazy(() => import('../pages/categories/CategoryList'));
 const ProductList = lazy(() => import('../pages/products/ProductList'));
 const ProductDetail = lazy(() => import('../pages/products/ProductDetail'));
 const Favourite = lazy(() => import('../pages/favourite/Favourite'));
@@ -50,6 +51,7 @@ function AppRoutes() {
         >
           <Route index element={<Dashboard />} />
           <Route path="users" element={<UserList />} />
+          <Route path="categories" element={<CategoryList />} />
           <Route path="products" element={<ProductList />} />
         </Route>
         <Route path="*" element={<NotFound />} />
